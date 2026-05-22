@@ -38,7 +38,26 @@ To use this with **Claude Desktop** or any standard MCP client, add the followin
   }
 }
 ```
-Once configured, the AI will automatically have access to the `find_structural_neighbors` tool and can call it natively during your chats!
+#### C. How to Configure for Gemini CLI / Antigravity Desktop
+If you are using **Antigravity CLI** or **Gemini CLI**, you can easily package this tool as a native **Agent Skill**.
+
+1. Create a new skill folder in your configuration directory (e.g., `~/.gemini/config/plugins/my-plugins/skills/file_search_69/`).
+2. Copy `ai_skill.py`, `database.py`, and `vector_math.py` into this folder (or ensure the script is run from the project root).
+3. Create a `SKILL.md` file inside the folder with the following content:
+
+```yaml
+---
+name: file_search_69
+description: Query the local 42-dimension structural vector database to find architecturally similar files instantly.
+---
+# File Search 69 Skill
+Use this skill when you need to understand the architectural layout of the codebase without wasting context tokens running `grep`.
+**Command to run:**
+`python /path/to/file_search69/ai_skill.py "target_file.py" --limit 5`
+**Instructions:** Read the strictly formatted JSON output to find the nearest structural neighbors to the target file.
+```
+
+Once added, the Antigravity agent will automatically know when and how to invoke the python script during your pair-programming sessions!
 
 ## 🚀 Key Architectural Concepts
 1. **42-Dimension Custom Vector**: A highly optimized, handcrafted vector structure where every dimension maps to a strict property (e.g., File Size, Creation Date, File Extension). This guarantees lightning-fast processing without the overhead of AI neural networks.
