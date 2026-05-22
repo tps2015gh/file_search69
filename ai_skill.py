@@ -8,8 +8,9 @@ from database import get_all_files
 
 def main():
     parser = argparse.ArgumentParser(description="AI Skill: Find structurally similar files.")
-    parser.add_argument("target_path", help="The absolute or relative path to the target file.")
+    parser.add_argument("target_path", nargs="?", default="", help="The absolute or relative path to the target file.")
     parser.add_argument("--limit", type=int, default=5, help="Number of similar files to return.")
+    parser.add_argument("--search", type=str, help="Search files by path or name directly, bypassing structural math.")
     args = parser.parse_args()
 
     if not os.path.exists("file_search.db"):
@@ -17,6 +18,22 @@ def main():
         sys.exit(1)
 
     files = get_all_files()
+    
+    if args.search:
+        results = []
+        search_query = args.search.lower()
+        for f in files:
+            if search_query in f['path'].lower():
+                results.append({
+                    "name": f['name'],
+                    "path": f['path']
+                })
+        print(json.dumps({"search_query": args.search, "matches": results[:args.limit]}, indent=2))
+        sys.exit(0)
+        
+    if not args.target_path:
+        print(json.dumps({"error": "Must provide either target_path or --search."}))
+        sys.exit(1)
     
     # Find target file vector
     target_vec = None

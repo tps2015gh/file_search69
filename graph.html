@@ -16,29 +16,74 @@
             width: 100vw; 
             height: 100vh; 
         }
-        #hud {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            padding: 15px;
-            border-radius: 8px;
-            pointer-events: none;
-            border: 1px solid #333;
-        }
+      /* UI HUD Elements */
+    #hud {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        color: #fff;
+        z-index: 10;
+        pointer-events: none;
+        background: rgba(15, 15, 15, 0.7);
+        padding: 15px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    #search-container {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 10;
+        background: rgba(15, 15, 15, 0.7);
+        padding: 10px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    #searchBox {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        outline: none;
+        width: 250px;
+    }
+    #searchBox::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
     </style>
 </head>
 <body>
 
 <div id="hud">
-    <h2 style="margin:0 0 10px 0; color: #0078D7;">File Search 69</h2>
-    <p style="margin:0; font-size: 14px;">Core MVP - Vis.js Physics Engine</p>
+    <h3 style="margin: 0 0 10px 0; font-weight: 600;">File Search 69</h3>
+    <span style="color: #888;">Live Structure Mapping</span><br>
+    <div style="margin-top: 10px; font-size: 12px; color: #aaa;">
+        • <span style="color: #ff3366;">Red nodes</span>: High entropy (hubs)<br>
+        • <span style="color: #00ccff;">Blue nodes</span>: Low entropy (leaves)<br>
+        • Click any node to copy full path
+    </div>
+</div>
+
+<div id="search-container">
+    <input type="text" id="searchBox" placeholder="🔍 Search files..." autocomplete="off">
 </div>
 
 <div id="mynetwork"></div>
 
 <script type="text/javascript">
     function renderGraph(nodesData, edgesData) {
+        // Store original properties so we can restore them after clearing search
+        nodesData.forEach(function(n) {
+            n.originalColor = n.color;
+            n.originalSize = n.size || 10;
+        });
+
         // Wait if the remote vis.js script is still downloading
         if (typeof vis === 'undefined') {
             document.getElementById('mynetwork').innerHTML = '<div style="padding: 50px; color: #0078D7;">Downloading physics engine (vis.js)... please wait a moment.</div>';
@@ -155,6 +200,46 @@
                     }, 2000);
                 }
             }
+        });
+        
+        // Search functionality
+        var searchBox = document.getElementById('searchBox');
+        searchBox.addEventListener('input', function(e) {
+            var query = e.target.value.toLowerCase();
+            var updates = [];
+            
+            data.nodes.forEach(function(node) {
+                var path = (node.title || "").toLowerCase();
+                if (query === "") {
+                    // Restore original state
+                    updates.push({
+                        id: node.id,
+                        color: node.originalColor,
+                        size: node.originalSize,
+                        font: { color: '#ffffff' }
+                    });
+                } else if (path.includes(query)) {
+                    // Highlight matching node
+                    updates.push({
+                        id: node.id,
+                        color: { background: '#ffff00', border: '#ffaa00' },
+                        size: Math.min(node.originalSize * 2, 40),
+                        font: { color: '#ffffff' }
+                    });
+                } else {
+                    // Dim non-matching node
+                    var dimmedColor = "#333333";
+                    updates.push({
+                        id: node.id,
+                        color: { background: dimmedColor, border: '#222222' },
+                        size: node.originalSize,
+                        font: { color: '#555555' }
+                    });
+                }
+            });
+            
+            // Update the dataset in bulk
+            data.nodes.update(updates);
         });
     }
 </script>

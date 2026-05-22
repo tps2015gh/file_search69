@@ -26,6 +26,22 @@ def handle_request(req):
         except Exception as e:
             return {"error": {"code": -32603, "message": str(e)}}
             
+    elif req.get("method") == "search_files":
+        params = req.get("params", {})
+        query = params.get("query")
+        limit = params.get("limit", 10)
+        
+        if not query:
+            return {"error": {"code": -32602, "message": "Missing query parameter"}}
+            
+        try:
+            result = subprocess.check_output(["python", "ai_skill.py", "--search", query, "--limit", str(limit)], text=True)
+            return {"result": json.loads(result)}
+        except subprocess.CalledProcessError as e:
+            return {"error": {"code": -32603, "message": f"Execution failed: {e.output}"}}
+        except Exception as e:
+            return {"error": {"code": -32603, "message": str(e)}}
+
     return {"error": {"code": -32601, "message": "Method not found"}}
 
 def main():
