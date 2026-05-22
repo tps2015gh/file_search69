@@ -39,6 +39,16 @@
 
 <script type="text/javascript">
     function renderGraph(nodesData, edgesData) {
+        // Wait if the remote vis.js script is still downloading
+        if (typeof vis === 'undefined') {
+            document.getElementById('mynetwork').innerHTML = '<div style="padding: 50px; color: #0078D7;">Downloading physics engine (vis.js)... please wait a moment.</div>';
+            setTimeout(function() { renderGraph(nodesData, edgesData); }, 500);
+            return;
+        }
+        
+        // Clear loading message
+        document.getElementById('mynetwork').innerHTML = '';
+        
         var container = document.getElementById('mynetwork');
         
         var data = {

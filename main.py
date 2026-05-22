@@ -5,6 +5,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWebEngineCore import QWebEngineSettings
 from PySide6.QtCore import QUrl
 from database import get_all_files, init_db
 from crawler import crawl_directory
@@ -16,6 +17,11 @@ class MainWindow(QMainWindow):
         self.resize(1200, 800)
         
         self.webview = QWebEngineView()
+        
+        # Allow local HTML to load remote scripts (unpkg)
+        settings = self.webview.page().settings()
+        settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
+
         
         # Load HTML Graph Template
         html_path = os.path.abspath("graph.html")
