@@ -80,13 +80,19 @@
                 width: 1
             },
             physics: {
+                solver: 'barnesHut',
                 barnesHut: {
                     gravitationalConstant: -2000,
                     centralGravity: 0.1,
-                    springLength: 95,
+                    springLength: 100,
                     springConstant: 0.04,
-                    damping: 0.09,
-                    avoidOverlap: 0.5
+                    damping: 0.5, // Increased from 0.09 to 0.5 to stop dancing quickly
+                    avoidOverlap: 0 // Overlap avoidance causes endless jitter
+                },
+                stabilization: {
+                    enabled: true,
+                    iterations: 150, // Let it settle a bit before stopping
+                    fit: true
                 }
             },
             interaction: {
@@ -98,6 +104,21 @@
         };
         
         var network = new vis.Network(container, data, options);
+        
+        // Lock physics completely after initial settling to prevent any endless bouncing
+        network.on("stabilizationIterationsDone", function () {
+            network.setOptions({ physics: { enabled: false } });
+        });
+        
+        // Optional: Re-enable physics temporarily when user drags a node, then lock it again
+        network.on("dragStart", function(params) {
+            if (params.nodes.length > 0) {
+                network.setOptions({ physics: { enabled: true } });
+            }
+        });
+        network.on("dragEnd", function(params) {
+            network.stabilize(50); // settle briefly then lock again
+        });
     }
 </script>
 </body>
