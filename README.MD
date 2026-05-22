@@ -1,8 +1,28 @@
-# File Search 69 (Design Only)
+# File Search 69
 
-**File Search 69** is the blueprint for a high-performance, real-time filesystem indexer and visualizer. It is designed to group and map local files by their structural similarities into an interactive, physics-based node graph, bringing an "Obsidian-like" visual experience to your entire operating system.
+File Search 69 is an ultra-fast, structural filesystem mapping tool built with Python, PySide6, SQLite, and vis.js. It transforms a local directory structure into a mathematical 42-dimensional vector space.
 
-> **Note:** This repository is currently dedicated **exclusively to the architectural design, schemas, and planning documents**. There is no implementation code included here.
+## The Dual-Role Architecture
+
+This project was built through a collaborative effort between a **Human Developer** and an **AI Agent**. It is intentionally designed with two separate pipelines to serve both:
+
+### 1. For Humans (Visual UI)
+The human interface uses a PySide6 WebEngine to render an interactive, physics-based 2D node graph.
+- **Run:** `python main.py [optional_path]`
+- **Features:** 12-second live arranging animation, Entropy Heatmap (hot nodes turn red and push neighbors away), and Click-to-Copy file paths.
+
+### 2. For AI Agents (Headless Pipeline)
+AI Agents don't have eyes to see a GUI, so we built a strict **Headless Pipeline** using the raw SQLite vector database (`PRAGMA journal_mode=WAL` for infinite concurrency). An AI can mathematically query the structural similarities of a codebase instantly without wasting context window tokens reading files.
+- **Agent Skill (CLI):** 
+  ```bash
+  python ai_skill.py "target_file.py" --limit 5
+  ```
+  Returns a strict JSON array of the most structurally similar files using NumPy Euclidean distance. Zero memory footprint.
+- **MCP Server:**
+  ```bash
+  python mcp_server.py
+  ```
+  A lightweight JSON-RPC server implementing the Model Context Protocol (MCP) over standard I/O. It exposes the `find_structural_neighbors` tool. It isolates heavy NumPy math to subprocesses to guarantee no memory leaks.
 
 ## 🚀 Key Architectural Concepts
 1. **42-Dimension Custom Vector**: A highly optimized, handcrafted vector structure where every dimension maps to a strict property (e.g., File Size, Creation Date, File Extension). This guarantees lightning-fast processing without the overhead of AI neural networks.
