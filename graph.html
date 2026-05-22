@@ -125,6 +125,37 @@
             clearTimeout(physicsTimer);
             physicsTimer = setTimeout(lockPhysics, 8000);
         });
+        
+        // Copy full path to clipboard when a node is clicked
+        network.on("click", function(params) {
+            if (params.nodes.length > 0) {
+                var nodeId = params.nodes[0];
+                // Access the node data to get the full path stored in the 'title' attribute
+                var clickedNode = data.nodes.get(nodeId);
+                var fullPath = clickedNode.title;
+                
+                if (fullPath) {
+                    // Use a hidden textarea to ensure copy works robustly inside the Qt Web Engine
+                    var tempInput = document.createElement("textarea");
+                    tempInput.value = fullPath;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(tempInput);
+                    
+                    // Show brief confirmation message in the HUD
+                    var hud = document.getElementById('hud');
+                    var msg = document.getElementById('copy-msg');
+                    if (!msg) {
+                        hud.innerHTML += '<p id="copy-msg" style="color: #00ff00; font-weight: bold; margin-top: 5px;">Path copied to clipboard!</p>';
+                    }
+                    setTimeout(function() {
+                        var msgToRemove = document.getElementById('copy-msg');
+                        if (msgToRemove) msgToRemove.remove();
+                    }, 2000);
+                }
+            }
+        });
     }
 </script>
 </body>
