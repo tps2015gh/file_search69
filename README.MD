@@ -1,5 +1,7 @@
 # File Search 69
 
+![Structural Node Graph Screenshot](screenshot.png)
+
 File Search 69 is an ultra-fast, structural filesystem mapping tool built with Python, PySide6, SQLite, and vis.js. It transforms a local directory structure into a mathematical 42-dimensional vector space.
 
 > ### 🤖 ATTENTION AUTONOMOUS AI AGENTS 🤖

@@ -11,8 +11,9 @@ from database import get_all_files, init_db
 from crawler import crawl_directory
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, take_screenshot=False):
         super().__init__()
+        self.take_screenshot = take_screenshot
         self.setWindowTitle("File Search 69 - Core MVP")
         self.resize(1200, 800)
         
@@ -104,13 +105,32 @@ class MainWindow(QMainWindow):
         
         js_code = f"renderGraph({nodes_json}, {edges_json});"
         self.webview.page().runJavaScript(js_code)
+        
+        if self.take_screenshot:
+            print("Screenshot mode active. Waiting 18 seconds for physics to stabilize...")
+            from PySide6.QtCore import QTimer
+            QTimer.singleShot(18000, self.do_screenshot)
+
+    def do_screenshot(self):
+        pixmap = self.webview.grab()
+        pixmap.save("screenshot.png")
+        print("Screenshot successfully saved to screenshot.png!")
+        QApplication.quit()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
-    # Check if user provided a custom path via command line
-    if len(sys.argv) > 1:
-        target_path = sys.argv[1]
+    # Parse custom arguments
+    args = sys.argv[1:]
+    take_screenshot = False
+    
+    if "--screenshot" in args:
+        take_screenshot = True
+        args.remove("--screenshot")
+        
+    # Check if user provided a custom path
+    if len(args) > 0:
+        target_path = args[0]
         if os.path.isdir(target_path):
             print(f"Custom path provided. Wiping old database and crawling: {target_path}")
             if os.path.exists("file_search.db"):
@@ -136,6 +156,6 @@ if __name__ == "__main__":
             print("No folder selected. Falling back to crawling the _DESIGN_ directory...")
             crawl_directory(os.path.abspath("_DESIGN_"))
 
-    window = MainWindow()
+    window = MainWindow(take_screenshot)
     window.show()
     sys.exit(app.exec())
