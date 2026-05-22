@@ -78,12 +78,36 @@ class MainWindow(QMainWindow):
         self.webview.page().runJavaScript(js_code)
 
 if __name__ == "__main__":
-    # For the MVP, automatically run the crawler on the _DESIGN_ folder if DB is empty
-    if not os.path.exists("file_search.db"):
-        print("First run detected: Crawling _DESIGN_ directory for mock data...")
-        crawl_directory(os.path.abspath("_DESIGN_"))
-
     app = QApplication(sys.argv)
+    
+    # Check if user provided a custom path via command line
+    if len(sys.argv) > 1:
+        target_path = sys.argv[1]
+        if os.path.isdir(target_path):
+            print(f"Custom path provided. Wiping old database and crawling: {target_path}")
+            if os.path.exists("file_search.db"):
+                os.remove("file_search.db")
+            crawl_directory(os.path.abspath(target_path))
+        else:
+            print(f"Error: {target_path} is not a valid directory.")
+            sys.exit(1)
+            
+    # If no DB exists, prompt the user with a GUI folder selection
+    elif not os.path.exists("file_search.db"):
+        from PySide6.QtWidgets import QFileDialog
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.FileMode.Directory)
+        dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
+        dialog.setWindowTitle("Select a Folder to Index for File Search 69")
+        
+        if dialog.exec():
+            selected_dir = dialog.selectedFiles()[0]
+            print(f"Crawling selected directory: {selected_dir}")
+            crawl_directory(os.path.abspath(selected_dir))
+        else:
+            print("No folder selected. Falling back to crawling the _DESIGN_ directory...")
+            crawl_directory(os.path.abspath("_DESIGN_"))
+
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
