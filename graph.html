@@ -86,14 +86,10 @@
                     centralGravity: 0.1,
                     springLength: 100,
                     springConstant: 0.04,
-                    damping: 0.5, // Increased from 0.09 to 0.5 to stop dancing quickly
-                    avoidOverlap: 0 // Overlap avoidance causes endless jitter
+                    damping: 0.2, // Lowered to allow a natural dance
+                    avoidOverlap: 0 
                 },
-                stabilization: {
-                    enabled: true,
-                    iterations: 150, // Let it settle a bit before stopping
-                    fit: true
-                }
+                stabilization: false // Set to false to show the live arranging animation
             },
             interaction: {
                 hover: true,
@@ -105,19 +101,28 @@
         
         var network = new vis.Network(container, data, options);
         
-        // Lock physics completely after initial settling to prevent any endless bouncing
-        network.on("stabilizationIterationsDone", function () {
-            network.setOptions({ physics: { enabled: false } });
-        });
+        var physicsTimer = null;
         
-        // Optional: Re-enable physics temporarily when user drags a node, then lock it again
+        // Function to lock physics to guarantee stability
+        function lockPhysics() {
+            network.setOptions({ physics: { enabled: false } });
+        }
+        
+        // Initial load: Let the nodes dance and arrange live for 12 seconds, then lock
+        physicsTimer = setTimeout(lockPhysics, 12000);
+        
+        // When dragging starts, wake up the physics smoothly
         network.on("dragStart", function(params) {
             if (params.nodes.length > 0) {
+                clearTimeout(physicsTimer);
                 network.setOptions({ physics: { enabled: true } });
             }
         });
+        
+        // When dropping the node, let it dance smoothly into place for 5 seconds, then lock
         network.on("dragEnd", function(params) {
-            network.stabilize(50); // settle briefly then lock again
+            clearTimeout(physicsTimer);
+            physicsTimer = setTimeout(lockPhysics, 5000);
         });
     }
 </script>
