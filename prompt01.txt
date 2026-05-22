@@ -1,0 +1,27 @@
+create program to search file name with fast speed . 
+use technique vector similarity to search . 
+split info to be 42 dimension and calculate unique vector number ( look like embedding)  
+then from that vector add search function  
+
+also show 2 view (can switch ) 
+1 like obsidian graph show link of path and which is very similar (by specified near distance)
+2 like obsidian graph show link of near vector similarity  
+
+each node show full fill name 
+
+when calculate also use full path and parent path as parameter .
+
+dimension property like this  : 
+file or folder , encoding like thai or English , folder length , 
+fullpath length , drive letter , file extension type , 2 start letter of folder or file ,
+file size , create date . hidden or not  , system file or not , temp file or not , 
+ else which you think ok ( can reduce lower than 42 if not property not help )   
+
+also add .ignore path like git ignore 
+
+this is gui and can add folder more than 1 path  
+
+optimize prevent pc/notebook slow down. 
+check My PC/Notebook before create .
+
+storage may use vector db like chroma_db or else , posgreSQL with vector extension is ok 
