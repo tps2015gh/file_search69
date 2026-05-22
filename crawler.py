@@ -16,6 +16,10 @@ def crawl_directory(target_dir):
     print(f"Crawling {target_dir}...")
     
     for root, dirs, files in os.walk(target_dir):
+        # Exclude .git folder from being scanned
+        if '.git' in dirs:
+            dirs.remove('.git')
+            
         # Process files
         for name in files:
             full_path = os.path.join(root, name)
