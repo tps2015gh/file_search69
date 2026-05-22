@@ -57,18 +57,46 @@ class MainWindow(QMainWindow):
         # Using euclidean distance on the 42-dimension vectors
         dist_matrix = cdist(vectors, vectors, metric='euclidean')
         
-        # 4. Prepare edges (connect nearest neighbors)
+        # 4. Prepare edges and track node entropy (degree)
         edges = []
+        node_degrees = { f['id']: 0 for f in files }
+        
         for i in range(len(files)):
             # argsort sorts ascending, index 0 is self (dist 0), so take 1 to 3
             nearest_indices = np.argsort(dist_matrix[i])[1:4]
             for j in nearest_indices:
                 # Add edge if distance is relatively small
                 if dist_matrix[i, j] < 10.0: 
+                    from_id = files[i]['id']
+                    to_id = files[j]['id']
                     edges.append({
-                        'from': files[i]['id'],
-                        'to': files[j]['id']
+                        'from': from_id,
+                        'to': to_id
                     })
+                    node_degrees[from_id] += 1
+                    node_degrees[to_id] += 1
+                    
+        # Apply Heatmap (Entropy) and Dynamic Distance
+        for node in nodes:
+            d = node_degrees[node['id']]
+            # Calculate heat: Assume ~15 edges is max heat
+            heat = min(d / 15.0, 1.0)
+            
+            # Color gradient: Cold (Blue) -> Hot (Red)
+            r = int(heat * 255)
+            b = int((1 - heat) * 255)
+            node['color'] = {
+                'background': f'#{r:02x}22{b:02x}',
+                'border': '#ffffff'
+            }
+            # Hot nodes grow slightly larger
+            node['size'] = 12 + (heat * 15)
+            
+        for edge in edges:
+            d1 = node_degrees[edge['from']]
+            d2 = node_degrees[edge['to']]
+            # Heatmap Force: If nodes have high entropy, force the spring length to be much longer!
+            edge['length'] = 100 + ((d1 + d2) * 15)
                     
         # 5. Send data to JavaScript engine
         nodes_json = json.dumps(nodes)
