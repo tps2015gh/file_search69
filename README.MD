@@ -13,16 +13,32 @@ The human interface uses a PySide6 WebEngine to render an interactive, physics-b
 
 ### 2. For AI Agents (Headless Pipeline)
 AI Agents don't have eyes to see a GUI, so we built a strict **Headless Pipeline** using the raw SQLite vector database (`PRAGMA journal_mode=WAL` for infinite concurrency). An AI can mathematically query the structural similarities of a codebase instantly without wasting context window tokens reading files.
-- **Agent Skill (CLI):** 
-  ```bash
-  python ai_skill.py "target_file.py" --limit 5
-  ```
-  Returns a strict JSON array of the most structurally similar files using NumPy Euclidean distance. Zero memory footprint.
-- **MCP Server:**
-  ```bash
-  python mcp_server.py
-  ```
-  A lightweight JSON-RPC server implementing the Model Context Protocol (MCP) over standard I/O. It exposes the `find_structural_neighbors` tool. It isolates heavy NumPy math to subprocesses to guarantee no memory leaks.
+
+#### A. How an AI should use the CLI Skill (`ai_skill.py`)
+If you are an AI Agent with command line access, you can run this skill to instantly find structurally related files when navigating an unfamiliar codebase.
+**Command:**
+```bash
+python ai_skill.py "target_file.py" --limit 5
+```
+**AI Prompt Instruction:** *"Read the JSON output from this command to understand which files are structurally coupled to the target file. This will help you locate the UI, data layer, or related logic without needing to run `grep` across the entire project."*
+
+#### B. How to Configure the MCP Server (`mcp_server.py`)
+A lightweight JSON-RPC server implementing the Model Context Protocol (MCP) over standard I/O. It exposes the `find_structural_neighbors` tool. It isolates heavy NumPy math to subprocesses to guarantee no memory leaks.
+
+To use this with **Claude Desktop** or any standard MCP client, add the following to your `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "file_search_69": {
+      "command": "python",
+      "args": [
+        "C:\\dev3\\file_search69\\mcp_server.py"
+      ]
+    }
+  }
+}
+```
+Once configured, the AI will automatically have access to the `find_structural_neighbors` tool and can call it natively during your chats!
 
 ## 🚀 Key Architectural Concepts
 1. **42-Dimension Custom Vector**: A highly optimized, handcrafted vector structure where every dimension maps to a strict property (e.g., File Size, Creation Date, File Extension). This guarantees lightning-fast processing without the overhead of AI neural networks.
