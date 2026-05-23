@@ -121,24 +121,23 @@ class MainWindow(QMainWindow):
         QApplication.quit()
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    import argparse
     
-    # Parse custom arguments
-    args = sys.argv[1:]
-    take_screenshot = False
-    headless = False
+    parser = argparse.ArgumentParser(description="File Search 69 - Core MVP: Visual and Headless Structural Search")
+    parser.add_argument("target_path", nargs="?", help="Path to the directory to index/visualize")
+    parser.add_argument("--screenshot", action="store_true", help="Take a screenshot after 18 seconds and exit")
+    parser.add_argument("--headless", action="store_true", help="Crawl the directory and exit without opening the GUI")
     
-    if "--screenshot" in args:
-        take_screenshot = True
-        args.remove("--screenshot")
+    args = parser.parse_args()
+    
+    take_screenshot = args.screenshot
+    headless = args.headless
+    target_path = args.target_path
 
-    if "--headless" in args:
-        headless = True
-        args.remove("--headless")
+    app = QApplication(sys.argv)
         
     # Check if user provided a custom path
-    if len(args) > 0:
-        target_path = args[0]
+    if target_path:
         if os.path.isdir(target_path):
             print(f"Custom path provided. Wiping old database and crawling: {target_path}")
             if os.path.exists(DB_PATH):
