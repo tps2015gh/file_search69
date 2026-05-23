@@ -1,17 +1,24 @@
-# File Search 69 - Wish List
-
-This document tracks future features and architectural upgrades to be implemented when development resumes.
+# File Search 69 - Technical Roadmap & Implementation Status
 
 ## 1. Global Search Capacity
-**Status:** Planned
-**Description:** Implement a robust text/regex search capacity that returns multiple rows/items matching a query, bypassing or complimenting the vector distance calculations.
+**Status:** ✅ IMPLEMENTED
+**Description:** Robust text/regex search implemented for both AI and Human pipelines.
+- **AI/Headless:** `ai_skill.py --search "query"` implemented.
+- **UI:** Integrated search bar in graph visualization.
+- **MCP:** `search_files` tool exposed to AI agents.
 
-### For AI Agents (Headless Pipeline)
-- Add a `--search` flag to `ai_skill.py` (e.g., `python ai_skill.py --search "config"`).
-- Allows the AI to instantly locate groups of files by name or partial string match using the SQLite database instead of doing slow terminal `grep` commands across the whole drive.
-- Update `mcp_server.py` to expose a `search_files` tool alongside the existing `find_structural_neighbors` tool.
+## 2. Headless Mode Execution Flow
+**Status:** ✅ IMPLEMENTED
+**Description:** Optimized crawler that runs without a GUI.
+- **Execution:** `python main.py "/path" --headless`
+- **Workflow:** 
+  1. Identifies script location for absolute DB mapping.
+  2. Wipes existing `file_search.db`.
+  3. Parallelized feature extraction and 42-dim vector math.
+  4. Batch SQL commits (100 rows per transaction).
+  5. Immediate process termination with `sys.exit(0)` to free RAM.
 
-### For Humans (Visual UI)
-- Add a floating UI Search Bar to the PySide6 / vis.js graph.
-- When a human types a query, instantly filter, highlight, or zoom the camera to the nodes that match the search result.
-- Provides an immediate visual cluster of where certain types of files (e.g., "auth" or ".js") live in the project's physical architecture.
+## 3. Planned Features (Wish List)
+- **Incremental Crawling:** Instead of wiping the DB, only update files with changed timestamps.
+- **Custom Vector Weights via CLI:** Allow users to pass weight overrides in headless mode (e.g., `--weight-ext 2.0`).
+- **Multi-Root Support:** Index multiple disconnected directories into a single unified vector space.

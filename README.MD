@@ -28,7 +28,11 @@ The human interface uses a PySide6 WebEngine to render an interactive, physics-b
 ### 2. For Humans & AI (Headless Crawler)
 If you only need to index a directory without seeing the graph (e.g., when working in a remote terminal or as an AI Agent), use the `--headless` flag.
 - **Run:** `python main.py "/path/to/directory" --headless`
-- **Behavior:** Wipes the old `file_search.db`, crawls the new path, and exits immediately upon completion.
+- **What happens under the hood:**
+  1. **Automatic Path Resolution:** Detects the project root to ensure `file_search.db` is managed centrally.
+  2. **Database Reset:** Automatically wipes the old database to ensure a clean structural map of the new target.
+  3. **High-Speed Indexing:** Crawls files, calculates 42-dimension vectors, and performs batch SQLite inserts.
+  4. **Graceful Exit:** Immediately terminates the process and releases all RAM/CPU resources back to the OS without ever initializing the GUI.
 
 ### 3. For AI Agents (Headless Skill Pipeline)
 AI Agents don't have eyes to see a GUI, so we built a strict **Headless Pipeline** using the raw SQLite vector database (`PRAGMA journal_mode=WAL` for infinite concurrency). An AI can mathematically query the structural similarities of a codebase instantly without wasting context window tokens reading files.
