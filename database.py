@@ -1,7 +1,10 @@
 import sqlite3
 import numpy as np
+import os
 
-DB_PATH = 'file_search.db'
+# Ensure DB_PATH is always relative to the script's directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, 'file_search.db')
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)

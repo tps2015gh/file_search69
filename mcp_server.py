@@ -1,6 +1,11 @@
 import sys
 import json
 import subprocess
+import os
+
+# Get the base directory of the project
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+AI_SKILL_PATH = os.path.join(BASE_DIR, "ai_skill.py")
 
 def handle_request(req):
     """ Handle incoming JSON-RPC requests from an MCP client """
@@ -18,7 +23,7 @@ def handle_request(req):
         # occur in a completely isolated process that releases all memory instantly upon exit.
         # This prevents the long-running MCP Server from suffering memory leaks or hogging PC resources.
         try:
-            result = subprocess.check_output(["python", "ai_skill.py", target_path, "--limit", str(limit)], text=True)
+            result = subprocess.check_output(["python", AI_SKILL_PATH, target_path, "--limit", str(limit)], text=True)
             # Parse the JSON string outputted by ai_skill.py and embed it in the RPC response
             return {"result": json.loads(result)}
         except subprocess.CalledProcessError as e:
@@ -35,7 +40,7 @@ def handle_request(req):
             return {"error": {"code": -32602, "message": "Missing query parameter"}}
             
         try:
-            result = subprocess.check_output(["python", "ai_skill.py", "--search", query, "--limit", str(limit)], text=True)
+            result = subprocess.check_output(["python", AI_SKILL_PATH, "--search", query, "--limit", str(limit)], text=True)
             return {"result": json.loads(result)}
         except subprocess.CalledProcessError as e:
             return {"error": {"code": -32603, "message": f"Execution failed: {e.output}"}}

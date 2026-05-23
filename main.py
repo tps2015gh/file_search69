@@ -7,8 +7,11 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEngineSettings
 from PySide6.QtCore import QUrl
-from database import get_all_files, init_db
+from database import get_all_files, init_db, DB_PATH
 from crawler import crawl_directory
+
+# Get the base directory of the project
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class MainWindow(QMainWindow):
     def __init__(self, take_screenshot=False):
@@ -24,8 +27,8 @@ class MainWindow(QMainWindow):
         settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
 
         
-        # Load HTML Graph Template
-        html_path = os.path.abspath("graph.html")
+        # Load HTML Graph Template - Always relative to script directory
+        html_path = os.path.join(BASE_DIR, "graph.html")
         self.webview.setUrl(QUrl.fromLocalFile(html_path))
         self.webview.loadFinished.connect(self.on_load_finished)
         
@@ -123,25 +126,36 @@ if __name__ == "__main__":
     # Parse custom arguments
     args = sys.argv[1:]
     take_screenshot = False
+    headless = False
     
     if "--screenshot" in args:
         take_screenshot = True
         args.remove("--screenshot")
+
+    if "--headless" in args:
+        headless = True
+        args.remove("--headless")
         
     # Check if user provided a custom path
     if len(args) > 0:
         target_path = args[0]
         if os.path.isdir(target_path):
             print(f"Custom path provided. Wiping old database and crawling: {target_path}")
-            if os.path.exists("file_search.db"):
-                os.remove("file_search.db")
+            if os.path.exists(DB_PATH):
+                os.remove(DB_PATH)
             crawl_directory(os.path.abspath(target_path))
+            if headless:
+                print("Headless mode: Crawling finished. Exiting.")
+                sys.exit(0)
         else:
             print(f"Error: {target_path} is not a valid directory.")
             sys.exit(1)
             
     # If no DB exists, prompt the user with a GUI folder selection
-    elif not os.path.exists("file_search.db"):
+    elif not os.path.exists(DB_PATH):
+        if headless:
+            print("Error: Headless mode requires a path argument if no database exists.")
+            sys.exit(1)
         from PySide6.QtWidgets import QFileDialog
         dialog = QFileDialog()
         dialog.setFileMode(QFileDialog.FileMode.Directory)

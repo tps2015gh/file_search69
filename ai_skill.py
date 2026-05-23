@@ -4,7 +4,7 @@ import json
 import numpy as np
 import argparse
 from scipy.spatial.distance import cdist
-from database import get_all_files
+from database import get_all_files, DB_PATH
 
 def main():
     parser = argparse.ArgumentParser(description="AI Skill: Find structurally similar files.")
@@ -13,8 +13,8 @@ def main():
     parser.add_argument("--search", type=str, help="Search files by path or name directly, bypassing structural math.")
     args = parser.parse_args()
 
-    if not os.path.exists("file_search.db"):
-        print(json.dumps({"error": "Database not found. Run crawler.py first."}))
+    if not os.path.exists(DB_PATH):
+        print(json.dumps({"error": f"Database not found at {DB_PATH}. Run crawler.py first."}))
         sys.exit(1)
 
     files = get_all_files()
