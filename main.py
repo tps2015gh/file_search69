@@ -144,7 +144,8 @@ if __name__ == "__main__":
                 os.remove(DB_PATH)
             crawl_directory(os.path.abspath(target_path))
             if headless:
-                print("Headless mode: Crawling finished. Exiting.")
+                print("Headless mode: Crawling finished. Structural database is now ready for AI or User search.")
+                print("Exiting.")
                 sys.exit(0)
         else:
             print(f"Error: {target_path} is not a valid directory.")
